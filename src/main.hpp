@@ -17,7 +17,8 @@
 #define HC595_LATCH 26
 #define HC595_DATA 27
 // 74HC595刷新频率
-#define HC595_FREQ 50000
+#define HC595_UPDATE_FREQ 50000
+#define HC595_BUF_LEN 8
 // X电机
 #define X_EN 0
 #define X_STEP 1

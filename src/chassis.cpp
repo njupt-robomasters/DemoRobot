@@ -3,6 +3,7 @@
 
 Chassis::Chassis(Stepper &s1, Stepper &s2, Stepper &s3, Stepper &s4) :
     m_s1(s1), m_s2(s2), m_s3(s3), m_s4(s4) {
+    Disable();
 }
 
 void Chassis::Disable() {

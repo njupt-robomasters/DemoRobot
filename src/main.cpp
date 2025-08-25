@@ -1,8 +1,8 @@
 #include "main.hpp"
 #include <Arduino.h>
-#include "driver/i2s.h"
+#include <driver/i2s.h>
+#include <XboxSeriesXControllerESP32_asukiaaa.hpp>
 
-#include "XboxSeriesXControllerESP32_asukiaaa.hpp"
 #include "stepper.hpp"
 #include "chassis.hpp"
 
@@ -11,24 +11,24 @@ XboxSeriesXControllerESP32_asukiaaa::Core
     // xbox("59:9b:52:75:33:2f");
     xbox("40:8e:2c:92:72:aa");
 
-uint32_t hc595_data[8];
+uint32_t hc595_buf[HC595_BUF_LEN];
 
-Stepper s1(hc595_data, X_EN, X_STEP, X_DIR);
-Stepper s2(hc595_data, Y_EN, Y_STEP, Y_DIR);
-Stepper s3(hc595_data, Z_EN, Z_STEP, Z_DIR);
-Stepper s4(hc595_data, E0_EN, E0_STEP, E0_DIR);
+Stepper s1(hc595_buf, X_EN, X_STEP, X_DIR);
+Stepper s2(hc595_buf, Y_EN, Y_STEP, Y_DIR);
+Stepper s3(hc595_buf, Z_EN, Z_STEP, Z_DIR);
+Stepper s4(hc595_buf, E0_EN, E0_STEP, E0_DIR);
 Chassis chassis(s1, s2, s3, s4);
 
 void init_i2s() {
     i2s_config_t i2s_config = {
         .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_TX),
-        .sample_rate = HC595_FREQ * 2,
+        .sample_rate = HC595_UPDATE_FREQ * 2,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
         .communication_format = I2S_COMM_FORMAT_STAND_MSB,
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
         .dma_buf_count = 2,
-        .dma_buf_len = 8
+        .dma_buf_len = HC595_BUF_LEN
     };
     i2s_pin_config_t pin_config = {
         .mck_io_num = I2S_PIN_NO_CHANGE,
@@ -66,7 +66,7 @@ void xbox_task(void *argument) {
         } else {
             chassis.Disable();
         }
-        delay(1);
+        delay(1); // 防止触发任务看门狗
     }
 }
 
@@ -82,6 +82,6 @@ void setup() {
 void loop() {
     // loop默认在核心1上运行
     chassis.OnLoop();
-    size_t tmp;
-    i2s_write(I2S_NUM_0, hc595_data, sizeof(hc595_data), &tmp, portMAX_DELAY);
+    size_t bytes_written;
+    i2s_write(I2S_NUM_0, hc595_buf, sizeof(hc595_buf), &bytes_written, portMAX_DELAY);
 }

@@ -1,30 +1,30 @@
 #include "stepper.hpp"
 #include "main.hpp"
 
-Stepper::Stepper(uint32_t (&hc595_data)[8],
+Stepper::Stepper(uint32_t (&hc595_buf)[8],
                  uint8_t en_pin, uint8_t step_pin, uint8_t dir_pin,
                  bool invert) : 
-    m_hc595_data(hc595_data),
+    m_hc595_buf(hc595_buf),
     m_en_pin(en_pin), m_step_pin(step_pin), m_dir_pin(dir_pin),
     m_invert(invert) {
     Disable();
 }
 
 void Stepper::Disable() {
-    for (int i = 0; i < 8; i++)
-        setBit(m_hc595_data[i], m_en_pin, 1);
+    for (int i = 0; i < HC595_BUF_LEN; i++)
+        setBit(m_hc595_buf[i], m_en_pin, 1);
 }
 
 void Stepper::Enable() {
-    for (int i = 0; i < 8; i++)
-        setBit(m_hc595_data[i], m_en_pin, 0);
+    for (int i = 0; i < HC595_BUF_LEN; i++)
+        setBit(m_hc595_buf[i], m_en_pin, 0);
 }
 
 void Stepper::SetFreq(float freq) {
     bool dir = (freq > 0) ^ m_invert;
-    for (int i = 0; i < 8; i++)
-        setBit(m_hc595_data[i], m_dir_pin, dir);
-    m_arr = HC595_FREQ / abs(freq); 
+    for (int i = 0; i < HC595_BUF_LEN; i++)
+        setBit(m_hc595_buf[i], m_dir_pin, dir);
+    m_arr = HC595_UPDATE_FREQ / abs(freq); 
 }
 
 void Stepper::SetRPM(float rpm) {
@@ -33,15 +33,15 @@ void Stepper::SetRPM(float rpm) {
 }
 
 void Stepper::OnLoop() {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < HC595_BUF_LEN; i++) {
         m_cnt++;
         if (m_cnt >= m_arr) {
             m_cnt = 0;
         }
         if (m_cnt < m_arr / 2) {
-            setBit(m_hc595_data[i], m_step_pin, 0);
+            setBit(m_hc595_buf[i], m_step_pin, 0);
         } else {
-            setBit(m_hc595_data[i], m_step_pin, 1);
+            setBit(m_hc595_buf[i], m_step_pin, 1);
         }
     }
 }
