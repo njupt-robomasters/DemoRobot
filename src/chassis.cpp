@@ -1,42 +1,48 @@
 #include "chassis.hpp"
-#include "main.hpp"
+#include <Arduino.h>
+#include "config.hpp"
 
 Chassis::Chassis(Stepper &s1, Stepper &s2, Stepper &s3, Stepper &s4) :
     m_s1(s1), m_s2(s2), m_s3(s3), m_s4(s4) {
-    Disable();
 }
 
-void Chassis::Disable() {
+void Chassis::disable() {
+    if (m_enabled == false) return;
+    m_enabled = false;
+
     // 应用到每一个轮子
-    m_s1.Disable();
-    m_s2.Disable();
-    m_s3.Disable();
-    m_s4.Disable();
+    m_s1.disable();
+    m_s2.disable();
+    m_s3.disable();
+    m_s4.disable();
 }
 
-void Chassis::Enable() {
+void Chassis::enable() {
+    if (m_enabled == true) return;
+    m_enabled = true;
+
     // 应用到每一个轮子
-    m_s1.Enable();
-    m_s2.Enable();
-    m_s3.Enable();
-    m_s4.Enable();
+    m_s1.enable();
+    m_s2.enable();
+    m_s3.enable();
+    m_s4.enable();
 }
 
-void Chassis::SetSpeed(float vx, float vy, float vrpm) {
+void Chassis::setSpeed(float vx, float vy, float vr) {
     m_vx_target = vx;
     m_vy_target = vy;
-    m_vrpm_target = vrpm;
+    m_vr_target = vr;
 }
 
-void Chassis::OnLoop() {
+void Chassis::onLoop() {
     // 缓加速
-    updateDT();
-    applyAcceleration(m_vx, m_vx_target, AXY);
-    applyAcceleration(m_vy, m_vy_target, AXY);
-    applyAcceleration(m_vrpm, m_vrpm_target, ARPM);
+    float dt = m_dt.update();
+    applyAcceleration(m_vx, m_vx_target, AXY, dt);
+    applyAcceleration(m_vy, m_vy_target, AXY, dt);
+    applyAcceleration(m_vr, m_vr_target, AR, dt);
 
-    // 底盘旋转角速度（单位：rpm） -> 底盘旋转线速度（单位：m/s）
-    float vz = m_vrpm / 60 * (2 * M_PI * CHASSIS_RADIUS);
+    // 底盘旋转角速度（单位：degree/s -> 底盘旋转线速度（单位：m/s）
+    float vz = m_vr / 360 * (2 * M_PI * CHASSIS_RADIUS);
 
     // 底盘运动学解算（全部为标准单位：m/s）
     float s1 = sqrtf(0.5f) * (-m_vx + m_vy) + vz;
@@ -45,30 +51,24 @@ void Chassis::OnLoop() {
     float s4 = sqrtf(0.5f) * (m_vx + m_vy) + vz;
 
     // 设置轮电机速度
-    m_s1.SetRPM(s1 / (2 * M_PI * WHEEL_RADIUS) * 60);
-    m_s2.SetRPM(s2 / (2 * M_PI * WHEEL_RADIUS) * 60);
-    m_s3.SetRPM(s3 / (2 * M_PI * WHEEL_RADIUS) * 60);
-    m_s4.SetRPM(s4 / (2 * M_PI * WHEEL_RADIUS) * 60);
+    m_s1.setRPM(s1 / (2 * M_PI * WHEEL_RADIUS) * 60);
+    m_s2.setRPM(s2 / (2 * M_PI * WHEEL_RADIUS) * 60);
+    m_s3.setRPM(s3 / (2 * M_PI * WHEEL_RADIUS) * 60);
+    m_s4.setRPM(s4 / (2 * M_PI * WHEEL_RADIUS) * 60);
 
     // 更新轮电机
-    m_s1.OnLoop();
-    m_s2.OnLoop();
-    m_s3.OnLoop();
-    m_s4.OnLoop();
+    m_s1.onLoop();
+    m_s2.onLoop();
+    m_s3.onLoop();
+    m_s4.onLoop();
 }
 
-void Chassis::updateDT() {
-    uint32_t now_micros = micros();
-    m_dt = (now_micros - m_last_micros) / 1e6f;
-    m_last_micros = now_micros;
-}
-
-void Chassis::applyAcceleration(float &v, float v_target, float a) {
+void Chassis::applyAcceleration(float &v, float v_target, float a, float dt) {
     if (v_target > v) {
-        v += a * m_dt;
+        v += a * dt;
         if (v > v_target) v = v_target;
     } else {
-        v -= a * m_dt;
+        v -= a * dt;
         if (v < v_target) v = v_target;
     }
 }

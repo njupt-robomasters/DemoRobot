@@ -1,24 +1,32 @@
 #pragma once
 
+// 硬件结构参数
 #define STEPPER_DIVIDER 8 // 步进电机驱动细分数
 #define CHASSIS_RADIUS 0.130 // 底盘半径，单位：m
 #define WHEEL_RADIUS 0.0515 // 轮子半径，单位：m
 
-#define VXY_MAX 1 // 底盘平移最大速度，单位：m/s
-#define VRPM_MAX 60 // 底盘旋转最大速度：单位：rpm
+// 小车运动参数
+#define VXY_MAX 1 // 底盘平移速度，单位：m/s
+#define VR_MAX 360 // 底盘旋转速度：单位：degree/s
+#define PITCH_SPEED_MAX 360 // 云台速度，单位：degree/s
+#define PITCH_ANGLE_MAX 45 // 云台最大角度，单位：degree
 #define AXY 2 // 底盘平移加速度，单位：m/s^2
-#define ARPM 120 // 底盘旋转加速度，单位：rpm/s^2
+#define AR 720 // 底盘旋转加速度，单位：degree/s^2
 
-#define XBOX_DEADLINE 0.1 // Xbox摇杆死区，单位：%
+// Xbox手柄参数
+#define XBOX_DEADLINE 0.1 // Xbox摇杆死区，范围0~1
 
-// 以下为74HC595配置
-// 74HC595控制引脚
+// 74HC595配置
 #define HC595_CLK 25
 #define HC595_LATCH 26
 #define HC595_DATA 27
-// 74HC595刷新频率
-#define HC595_UPDATE_FREQ 50000
-#define HC595_BUF_LEN 8
+#define HC595_UPDATE_FREQ 50000 // 74HC595刷新频率
+#define HC595_BUF_LEN 8 // 74HC595缓冲区长度
+
+// 以下引脚位于单片机IO
+#define PITCH_PIN 33
+
+// 以下引脚位于74HC595
 // X电机
 #define X_EN 0
 #define X_STEP 1
