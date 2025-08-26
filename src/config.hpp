@@ -13,10 +13,11 @@
 #define AXY 2 // 底盘平移加速度，单位：m/s^2
 #define AR 720 // 底盘旋转加速度，单位：degree/s^2
 
-// Xbox手柄参数
 #define XBOX_DEADLINE 0.1 // Xbox摇杆死区，范围0~1
 
 #define MUSIC_POWER 0.25 // 音乐注入功率，范围0~1
+
+#define SINGLE_SHOOT_TIME 0.04 // 单发时间，单位：s
 
 // 以下引脚位于单片机IO
 #define PITCH_PIN 33
