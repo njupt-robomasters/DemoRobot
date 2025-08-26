@@ -7,6 +7,7 @@
 #include "stepper.hpp"
 #include "chassis.hpp"
 #include "gimbal.hpp"
+#include "music.hpp"
 
 // 需要在此替换成自己的手柄蓝牙MAC地址
 XboxSeriesXControllerESP32_asukiaaa::Core
@@ -47,6 +48,23 @@ void init_i2s() {
     i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
     i2s_set_pin(I2S_NUM_0, &pin_config);
     i2s_start(I2S_NUM_0);
+}
+
+void music_task(void *argument) {
+    for (int i = 0; i < sizeof(freqs)/sizeof(freqs[0]); i++) {
+        if (freqs[i] == 0) {
+            gimbal.disableInject();
+            vTaskDelay(durations[i]);
+        } else {
+            gimbal.setInject(freqs[i], MUSIC_POWER);
+            vTaskDelay(durations[i]);
+
+            // 在音符之间添加10ms间隔，防止相同音符连音
+            gimbal.disableInject();
+            vTaskDelay(10);
+        }
+    }
+    vTaskDelete(NULL);
 }
 
 void xbox_task(void *argument) {
@@ -106,6 +124,8 @@ void setup() {
     xbox.begin(); // 初始化Xbox手柄
 
     xTaskCreatePinnedToCore(xbox_task, "xbox_task", 4096, NULL, 1, NULL, 0); // 创建Xbox手柄任务，绑定到核心0
+
+    xTaskCreatePinnedToCore(music_task, "music_task", 4096, NULL, 1, NULL, 0);
 }
 
 void loop() {

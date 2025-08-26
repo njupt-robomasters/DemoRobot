@@ -17,6 +17,9 @@ public:
 
     void setShooter(bool enable);
 
+    void setInject(float freq, float power);
+    void disableInject();
+
     void onLoop();
 
 private:
@@ -28,4 +31,8 @@ private:
     DT m_dt;
     float m_angle = 90;
     float m_angle_per_sec = 0;
+
+    bool m_shooter_enabled = false;
+    bool m_inject_enabled = false;
+    uint32_t m_cnt, m_arr = 0, m_ccr = 0;
 };

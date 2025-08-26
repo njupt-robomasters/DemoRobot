@@ -24,6 +24,10 @@ void setBit(uint32_t &data, uint8_t pos, bool val) {
     }
 }
 
+bool getBit(uint32_t data, uint8_t pos) {
+    return (data >> pos) & 1;
+}
+
 float DT::update() {
     uint32_t now_micros = micros();
     float dt = (now_micros - m_last_micros) / 1e6f;

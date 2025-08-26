@@ -16,15 +16,17 @@
 // Xbox手柄参数
 #define XBOX_DEADLINE 0.1 // Xbox摇杆死区，范围0~1
 
+#define MUSIC_POWER 0.25 // 音乐注入功率，范围0~1
+
+// 以下引脚位于单片机IO
+#define PITCH_PIN 33
+
 // 74HC595配置
 #define HC595_CLK 25
 #define HC595_LATCH 26
 #define HC595_DATA 27
 #define HC595_UPDATE_FREQ 50000 // 74HC595刷新频率
 #define HC595_BUF_LEN 8 // 74HC595缓冲区长度
-
-// 以下引脚位于单片机IO
-#define PITCH_PIN 33
 
 // 以下引脚位于74HC595
 // X电机

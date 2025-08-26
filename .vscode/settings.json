@@ -19,6 +19,7 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "limits": "cpp",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "numeric": "cpp"
     }
 }
