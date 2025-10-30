@@ -2,8 +2,10 @@
 #include <Arduino.h>
 
 float clampf(float x, float min_val, float max_val) {
-    if (x < min_val) return min_val;
-    if (x > max_val) return max_val;
+    if (x < min_val)
+        return min_val;
+    if (x > max_val)
+        return max_val;
     return x;
 }
 
@@ -16,11 +18,9 @@ float mapf(float x, float in_min, float in_max, float out_min, float out_max) {
 
 void setBit(uint32_t &data, uint8_t pos, bool val) {
     if (val) {
-        // 设置位为1：使用 OR 操作
-        data |= (1 << pos);
+        data |= (1 << pos); // 设置位为1：使用 OR 操作
     } else {
-        // 设置位为0：使用 AND 操作与取反
-        data &= ~(1 << pos);
+        data &= ~(1 << pos); // 设置位为0：使用 AND 操作与取反
     }
 }
 
