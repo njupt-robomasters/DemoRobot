@@ -12,9 +12,9 @@
 #define AR 360     // 底盘旋转加速度，单位：degree/s^2
 
 // 云台
-#define PITCH_ANGLE_MIN 60  // 云台最小角度，单位：degree
+#define PITCH_ANGLE_MIN 70  // 云台最小角度，单位：degree
 #define PITCH_ANGLE_MID 90  // 云台中位角度，单位：degree
-#define PITCH_ANGLE_MAX 120 // 云台最大角度，单位：degree
+#define PITCH_ANGLE_MAX 110 // 云台最大角度，单位：degree
 #define PITCH_SPEED_MAX 180 // 云台速度，单位：degree/s
 
 #define XBOX_DEADLINE 0.1      // xbox摇杆死区，范围0~1

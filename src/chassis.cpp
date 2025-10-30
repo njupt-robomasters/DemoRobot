@@ -34,10 +34,10 @@ void Chassis::onLoop() {
     float vz = m_vr / 360 * (2 * M_PI * CHASSIS_RADIUS);
 
     // 底盘运动学解算（全部为标准单位：m/s）
-    float s1 = sqrtf(0.5f) * (-m_vx + m_vy) + vz;
-    float s2 = sqrtf(0.5f) * (-m_vx - m_vy) + vz;
-    float s3 = sqrtf(0.5f) * (m_vx - m_vy) + vz;
-    float s4 = sqrtf(0.5f) * (m_vx + m_vy) + vz;
+    float s1 = sqrtf(0.5f) * (+m_vx + m_vy) + vz;
+    float s2 = sqrtf(0.5f) * (-m_vx + m_vy) + vz;
+    float s3 = sqrtf(0.5f) * (-m_vx - m_vy) + vz;
+    float s4 = sqrtf(0.5f) * (+m_vx - m_vy) + vz;
 
     // 设置轮电机速度
     m_s1.setRPM(s1 / (2 * M_PI * WHEEL_RADIUS) * 60);

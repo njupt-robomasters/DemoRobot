@@ -120,8 +120,8 @@ void loop0(void *pvParameters) {
         // 右摇杆制底盘旋转和云台俯仰
         float vx = rc.LX * VXY_MAX;
         float vy = rc.LY * VXY_MAX;
-        float vr = -rc.RX * VR_MAX;
-        float pitch_speed = rc.RY * PITCH_SPEED_MAX;
+        float vr = rc.RY * VR_MAX;
+        float pitch_speed = rc.RX * PITCH_SPEED_MAX;
         chassis.setSpeed(vx, vy, vr);
         gimbal.setSpeed(pitch_speed);
 
