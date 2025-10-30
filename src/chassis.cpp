@@ -1,31 +1,20 @@
 #include "chassis.hpp"
-#include <Arduino.h>
 #include "config.hpp"
+#include <Arduino.h>
 
-Chassis::Chassis(Stepper &s1, Stepper &s2, Stepper &s3, Stepper &s4) :
-    m_s1(s1), m_s2(s2), m_s3(s3), m_s4(s4) {
+Chassis::Chassis(Stepper &s1, Stepper &s2, Stepper &s3, Stepper &s4) : m_s1(s1), m_s2(s2), m_s3(s3), m_s4(s4) {
 }
 
-void Chassis::disable() {
-    if (m_enabled == false) return;
-    m_enabled = false;
+void Chassis::setEnable(bool is_enable) {
+    if (m_is_enable == is_enable)
+        return;
+    m_is_enable = is_enable;
 
     // 应用到每一个轮子
-    m_s1.disable();
-    m_s2.disable();
-    m_s3.disable();
-    m_s4.disable();
-}
-
-void Chassis::enable() {
-    if (m_enabled == true) return;
-    m_enabled = true;
-
-    // 应用到每一个轮子
-    m_s1.enable();
-    m_s2.enable();
-    m_s3.enable();
-    m_s4.enable();
+    m_s1.setEnable(is_enable);
+    m_s2.setEnable(is_enable);
+    m_s3.setEnable(is_enable);
+    m_s4.setEnable(is_enable);
 }
 
 void Chassis::setSpeed(float vx, float vy, float vr) {
@@ -66,9 +55,11 @@ void Chassis::onLoop() {
 void Chassis::applyAcceleration(float &v, float v_target, float a, float dt) {
     if (v_target > v) {
         v += a * dt;
-        if (v > v_target) v = v_target;
+        if (v > v_target)
+            v = v_target;
     } else {
         v -= a * dt;
-        if (v < v_target) v = v_target;
+        if (v < v_target)
+            v = v_target;
     }
 }
