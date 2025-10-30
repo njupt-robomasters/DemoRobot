@@ -17,18 +17,19 @@ void RC::onLoop() {
     }
 
     // 读取左右摇杆值，归一化到-1~1范围内
-    LX = mapf(xbox.xboxNotif.joyLHori, 0, 65535, -1, 1);
+    LX = mapf(xbox.xboxNotif.joyLVert, 0, 65535, 1, -1); // 垂直
     if (abs(LX) < XBOX_DEADLINE)
         LX = 0;
-    LY = mapf(xbox.xboxNotif.joyLVert, 0, 65535, 1, -1);
+    LY = mapf(xbox.xboxNotif.joyLHori, 0, 65535, 1, -1); // 水平
     if (abs(LY) < XBOX_DEADLINE)
         LY = 0;
-    RX = mapf(xbox.xboxNotif.joyRHori, 0, 65535, -1, 1);
+    RX = mapf(xbox.xboxNotif.joyRVert, 0, 65535, 1, -1); // 垂直
     if (abs(RX) < XBOX_DEADLINE)
         RX = 0;
-    RY = mapf(xbox.xboxNotif.joyRVert, 0, 65535, 1, -1);
+    RY = mapf(xbox.xboxNotif.joyRHori, 0, 65535, 1, -1); // 水平
     if (abs(RY) < XBOX_DEADLINE)
         RY = 0;
+    // Serial.printf("LX: %f, LY: %f, RX: %f, RY: %f\n", LX, LY, RX, RY);
 
     // 读取扳机值，归一化到0~1范围内
     LT = mapf(xbox.xboxNotif.trigLT, 0, 1023, 0, 1);
