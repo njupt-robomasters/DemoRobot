@@ -36,24 +36,25 @@ Gimbal gimbal(hc595.buf, PITCH_PIN, H_BED);
 // 音乐播放进程句柄
 TaskHandle_t music_task_handle = NULL;
 
-void serialEvent() {
+void serialEvent1() {
     uint8_t data[10];
-    for (int i = 0; i < 10; i++) {
-        if (!Serial1.available()) {
-            return;
-        }
-        data[i] = Serial1.read();
-    }
-    dbus.parseData(data);
-    // 清空多余数据
+    uint32_t i = 0;
     while (Serial1.available()) {
-        Serial1.read();
+        if (i < 10) {
+            data[i++] = Serial1.read();
+        } else {
+            i++;
+            Serial1.read();
+        }
+    }
+    if (i == 10) {
+        dbus.parseData(data);
     }
 }
 
 void setup() {
     Serial.begin(115200);                      // CH340串口
-    Serial1.begin(100000, SERIAL_8E1, 16, 17); // DBUS串口
+    Serial1.begin(115200, SERIAL_8N1, 16, 17); // DBUS串口
 
     rc.begin();
     hc595.begin();
@@ -116,29 +117,61 @@ void loop0(void *pvParameters) {
         chassis.setEnable(true);
         gimbal.setEnable(true);
 
-        // 左摇杆制底盘前后左右平移
-        // 右摇杆制底盘旋转和云台俯仰
-        float vx = rc.LX * VXY_MAX;
-        float vy = rc.LY * VXY_MAX;
-        float vr = rc.RY * VR_MAX;
+        // 底盘和云台运动
+        // 手柄摇杆
+        float vx = rc.LX * VXY_MAX; // 前进
+        float vy = rc.LY * VXY_MAX; // 左移
+        float vr = rc.RY * VR_MAX;  // 逆时针旋转
         float pitch_speed = rc.RX * PITCH_SPEED_MAX;
+        // 键鼠控制
+        if (dbus.is_connected) {
+            if (dbus.w)
+                vx += VXY_MAX;
+            else if (dbus.s)
+                vx -= VXY_MAX;
+            if (dbus.a)
+                vy += VXY_MAX;
+            else if (dbus.d)
+                vy -= VXY_MAX;
+            vr += -dbus.mouse_x * VR_MAX * 5;
+            pitch_speed += -dbus.mouse_y * PITCH_SPEED_MAX * 5;
+        }
+        // 应用
         chassis.setSpeed(vx, vy, vr);
         gimbal.setSpeed(pitch_speed);
 
-        // 扳机控制云台开火（左右任意扳机按下即开火）
+        // 连射
+        bool continue_shoot = false;
+        // 左右扳机
         if (rc.LT > 0.1 || rc.RT > 0.1) {
-            gimbal.setContinueShoot(true);
-        } else {
-            gimbal.setContinueShoot(false);
+            continue_shoot = true;
         }
+        // 鼠标左键
+        if (dbus.is_connected && dbus.left_button) {
+            continue_shoot = true;
+        }
+        // 应用
+        gimbal.setContinueShoot(continue_shoot);
 
-        // 扳机上方的按键控制单发
+        // 点射
+        bool single_shoot = false;
+        // 左右扳机上方的按键
         static bool lastLRB = false;
         bool btnLRB = rc.LB || rc.RB;
         if (btnLRB && btnLRB != lastLRB) {
-            gimbal.setSingleShoot(SINGLE_SHOOT_TIME);
+            single_shoot = true;
         }
         lastLRB = btnLRB;
+        // 鼠标右键
+        static bool last_right_button = false;
+        if (dbus.is_connected && dbus.right_button && dbus.right_button != last_right_button) {
+            single_shoot = true;
+        }
+        last_right_button = dbus.right_button;
+        // 应用
+        if (single_shoot) {
+            gimbal.triggerSingleShoot();
+        }
 
         // 按X播放音乐
         static bool lastX = false;

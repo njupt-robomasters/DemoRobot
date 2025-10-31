@@ -25,8 +25,9 @@ void Gimbal::setEnable(bool is_enable) {
         ledcWrite(0, 0);
 
         // 关闭发射
-        setContinueShoot(false);
-        setSingleShoot(false);
+        m_is_continue_shoot = false;
+        m_is_single_shoot = false;
+        m_single_shoot_left_time = 0;
     }
 }
 
@@ -47,9 +48,9 @@ void Gimbal::setContinueShoot(bool is_enable) {
     m_is_continue_shoot = is_enable;
 }
 
-void Gimbal::setSingleShoot(float time) {
+void Gimbal::triggerSingleShoot() {
     m_is_single_shoot = true;
-    m_single_shoot_left_time = time;
+    m_single_shoot_left_time = SINGLE_SHOOT_TIME;
 }
 
 void Gimbal::setInject(float freq, float power) {

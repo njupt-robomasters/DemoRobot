@@ -16,7 +16,7 @@ class Gimbal {
     void setSpeed(float speed);
 
     void setContinueShoot(bool enable);
-    void setSingleShoot(float shoot_time);
+    void triggerSingleShoot();
 
     void setInject(float freq, float power);
     void disableInject();
